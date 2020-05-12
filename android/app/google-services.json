@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "586846922013",
+    "firebase_url": "https://lks-student.firebaseio.com",
+    "project_id": "lks-student",
+    "storage_bucket": "lks-student.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:586846922013:android:bc527d8cdcd05b4c2eedf4",
+        "android_client_info": {
+          "package_name": "com.lksgrade.lks"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "586846922013-n9a5ghpdejiebsv3hm7ufba4ida4ci4e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCMGTtmloCqiCzEKhNkDHM9lwEdIH_HAYE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "586846922013-n9a5ghpdejiebsv3hm7ufba4ida4ci4e.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
