@@ -7,11 +7,23 @@ import 'package:lks/services/database.dart';
 import 'package:lks/services/http.dart';
 import 'package:lks/shared/loading.dart';
 import 'package:provider/provider.dart';
-import 'package:lks/screens/home/brew_list.dart';
+//import 'package:lks/screens/home/brew_list.dart';
 import 'package:rich_alert/rich_alert.dart';
+import 'package:table_calendar/table_calendar.dart';
+import 'package:rounded_loading_button/rounded_loading_button.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
-class Home extends StatelessWidget {
 
+class Home extends StatefulWidget {
+  @override
+  _HomeAppState createState() => _HomeAppState();
+
+}
+
+class _HomeAppState extends State<Home> {
+
+  final RoundedLoadingButtonController _btnController = new RoundedLoadingButtonController();
+  CalendarController _controller = CalendarController();
   final AuthService _auth = AuthService();
   final Http _http = Http();
 
@@ -42,8 +54,17 @@ class Home extends StatelessWidget {
               actions: <Widget>[
                 FlatButton.icon(
                   icon: Icon(Icons.person),
-                  label: Text('User'),
-                  onPressed: () => _showSettingsPanel(),
+                  label: Text(userData.id),
+                  onPressed: () =>
+                      Fluttertoast.showToast(
+                      msg: "If you want to change your ID, Please contact Admin.",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIosWeb: 3,
+                      backgroundColor: Colors.red,
+                      textColor: Colors.white,
+                      fontSize: 16.0
+                  ),//_showSettingsPanel(),
                 ),
                 FlatButton.icon(
                   icon: Icon(Icons.exit_to_app),
@@ -57,29 +78,42 @@ class Home extends StatelessWidget {
             body: Center(
               child: ListView(
                 children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Card(
-                        margin: EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0.0),
-                        child: ListTile(
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Card(
+                      margin: EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0.0),
+                      child: ListTile(
                           leading: CircleAvatar(
                             radius: 25.0,
-                            backgroundColor: Colors.lightBlue,
+                            backgroundImage: NetworkImage('http://ict.lks.ac.th/picpost/student/${userData.id}.jpg'),
                           ),
-                          title: Text("This is your ID ${userData.id}")
+                          title: Text("เลขประจำตัว : ${userData.id}")
                       ),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Center(
-                      child: RaisedButton(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24)
-                        ),
+                      child: Text('ปฏิทินการมาโรงเรียน', style: TextStyle(fontSize: 22.0, color: Colors.black)),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: TableCalendar(
+                      rowHeight: 48,
+                      calendarController: _controller,
+                      initialCalendarFormat: CalendarFormat.month,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 22.5, bottom: 22.5),
+                    child: Center(
+                      child: RoundedLoadingButton(
+                        controller: _btnController,
                         onPressed: () async {
                           dynamic result = await _http.sendStudentID(userData.id);
                           if(result == null){
+                            _btnController.reset();
                             showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
@@ -90,7 +124,7 @@ class Home extends StatelessWidget {
                                     actions: <Widget>[
                                       FlatButton(
                                         child: Text("OK"),
-                                        onPressed: (){
+                                        onPressed: () async {
                                           Navigator.pop(context);
                                         },
                                         color: Colors.lightBlue,
@@ -100,7 +134,9 @@ class Home extends StatelessWidget {
                                 }
                             );
                           }else{
+                            _btnController.success();
                             if(result['statusCode'] == "SUCCESS"){
+                              _btnController.reset();
                               showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
@@ -121,6 +157,7 @@ class Home extends StatelessWidget {
                                   }
                               );
                             }else{
+                              _btnController.reset();
                               showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
@@ -143,7 +180,6 @@ class Home extends StatelessWidget {
                             }
                           }
                         },
-                        padding: EdgeInsets.all(12),
                         color: Colors.lightBlue,
                         child: Text('ลงชื่อ', style: TextStyle(color: Colors.white)),
                       ),
@@ -159,4 +195,5 @@ class Home extends StatelessWidget {
       }
     );
   }
+
 }
