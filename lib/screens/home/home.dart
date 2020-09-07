@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lks/models/brew.dart';
 import 'package:lks/models/user.dart';
 import 'package:lks/screens/home/settings_form.dart';
 import 'package:lks/services/auth.dart';
@@ -7,11 +6,19 @@ import 'package:lks/services/database.dart';
 import 'package:lks/services/http.dart';
 import 'package:lks/shared/loading.dart';
 import 'package:provider/provider.dart';
-import 'package:lks/screens/home/brew_list.dart';
 import 'package:rich_alert/rich_alert.dart';
+import 'package:rounded_loading_button/rounded_loading_button.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
+  @override
+  _HomeAppState createState() => _HomeAppState();
 
+}
+
+class _HomeAppState extends State<Home> {
+
+  final RoundedLoadingButtonController _btnController = new RoundedLoadingButtonController();
   final AuthService _auth = AuthService();
   final Http _http = Http();
 
@@ -20,14 +27,14 @@ class Home extends StatelessWidget {
 
     final user = Provider.of<User>(context);
 
-    void _showSettingsPanel() {
+    /*void _showSettingsPanel() {
       showModalBottomSheet(context: context, builder: (context) {
         return Container(
           padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 60.0),
           child: SettingsForm(),
         );
       });
-    }
+    }*/
 
     return StreamBuilder<UserData>(
       stream: DatabaseService(uid: user.uid).userData,
@@ -36,14 +43,23 @@ class Home extends StatelessWidget {
           UserData userData = snapshot.data;
           return Scaffold(
             appBar: AppBar(
-              title: Text('Timestamp'),
+              title: Text('ClockInn'),
               backgroundColor: Colors.lightBlue,
               elevation: 0.0,
               actions: <Widget>[
                 FlatButton.icon(
                   icon: Icon(Icons.person),
-                  label: Text('User'),
-                  onPressed: () => _showSettingsPanel(),
+                  label: Text(userData.id),
+                  onPressed: () =>
+                      Fluttertoast.showToast(
+                          msg: "If you want to change your ID, Please contact us.",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          timeInSecForIosWeb: 3,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 16.0
+                      ),//_showSettingsPanel(),
                 ),
                 FlatButton.icon(
                   icon: Icon(Icons.exit_to_app),
@@ -57,29 +73,29 @@ class Home extends StatelessWidget {
             body: Center(
               child: ListView(
                 children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Card(
-                        margin: EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0.0),
-                        child: ListTile(
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Card(
+                      margin: EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0.0),
+                      child: ListTile(
                           leading: CircleAvatar(
                             radius: 25.0,
-                            backgroundColor: Colors.lightBlue,
+                            backgroundImage: NetworkImage('http://ict.lks.ac.th/picpost/student/${userData.id}.jpg'),
                           ),
-                          title: Text("This is your ID ${userData.id}")
+                          title: Text("เลขประจำตัว : ${userData.id}")
                       ),
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
+                    padding: const EdgeInsets.only(top: 22.5, bottom: 22.5),
                     child: Center(
-                      child: RaisedButton(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24)
-                        ),
+                      child: RoundedLoadingButton(
+                        controller: _btnController,
                         onPressed: () async {
-                          dynamic result = await _http.sendStudentID(userData.id);
+                          dynamic tokenID = await _auth.getIdToken();
+                          dynamic result = await _http.sendStudentID(tokenID, userData.id);
                           if(result == null){
+                            _btnController.reset();
                             showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
@@ -90,7 +106,7 @@ class Home extends StatelessWidget {
                                     actions: <Widget>[
                                       FlatButton(
                                         child: Text("OK"),
-                                        onPressed: (){
+                                        onPressed: () async {
                                           Navigator.pop(context);
                                         },
                                         color: Colors.lightBlue,
@@ -100,13 +116,15 @@ class Home extends StatelessWidget {
                                 }
                             );
                           }else{
+                            _btnController.success();
                             if(result['statusCode'] == "SUCCESS"){
+                              _btnController.reset();
                               showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
                                     return RichAlertDialog( //uses the custom alert dialog
                                       alertTitle: richTitle(result['headerText']),
-                                      alertSubtitle: richSubtitle(result['outputText'] + " สำหรับนักเรียนรหัส ${userData.id}"),
+                                      alertSubtitle: richSubtitle(result['outputText'] + " รหัสนักเรียน ${userData.id}"),
                                       alertType: RichAlertType.SUCCESS,
                                       actions: <Widget>[
                                         FlatButton(
@@ -121,6 +139,7 @@ class Home extends StatelessWidget {
                                   }
                               );
                             }else{
+                              _btnController.reset();
                               showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
@@ -143,7 +162,6 @@ class Home extends StatelessWidget {
                             }
                           }
                         },
-                        padding: EdgeInsets.all(12),
                         color: Colors.lightBlue,
                         child: Text('ลงชื่อ', style: TextStyle(color: Colors.white)),
                       ),

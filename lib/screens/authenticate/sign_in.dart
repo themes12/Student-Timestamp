@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lks/screens/authenticate/register.dart';
 import 'package:lks/services/auth.dart';
 import 'package:lks/shared/loading.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class SignIn extends StatefulWidget {
 
@@ -118,7 +119,15 @@ class _SignInState extends State<SignIn> {
     final forgotPassword = FlatButton(
         child: Text('Forgot Password?', style: TextStyle(color: Colors.black45)),
         onPressed: (){
-
+          Fluttertoast.showToast(
+              msg: "We are not correctly support password reset, Please contact us to change your password.",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 3,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 16.0
+          );
         },
     );
 
@@ -126,7 +135,7 @@ class _SignInState extends State<SignIn> {
       appBar: AppBar(
         backgroundColor: Colors.lightBlue,
         elevation: 0.0,
-        title: Text('Sign in to sdfsdfsdf'),
+        title: Text('ClockInn'),
       ),
       body: Center(
         child: Form(

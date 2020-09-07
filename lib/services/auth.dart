@@ -65,4 +65,17 @@ class AuthService {
       return null;
     }
   }
+
+  Future getIdToken() async {
+    try{
+      final tokenResult = await FirebaseAuth.instance.currentUser();
+      final idToken = await tokenResult.getIdToken();
+      final token = idToken.token;
+      return await token;
+    }catch(e){
+      print(e.toString());
+      return null;
+    }
+  }
+
 }

@@ -122,7 +122,7 @@ class _RegisterState extends State<Register> {
       appBar: AppBar(
         backgroundColor: Colors.lightBlue,
         elevation: 0.0,
-        title: Text('Register in to sdfsdfsdf'),
+        title: Text('ClockInn'),
       ),
       body: Center(
         child: Form(
