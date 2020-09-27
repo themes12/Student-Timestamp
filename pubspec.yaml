@@ -36,6 +36,8 @@ dependencies:
   rich_alert: ^0.1.32
   rounded_loading_button: ^1.0.0
   fluttertoast: ^7.0.2
+  firebase_admob: ^0.9.3
+  otp_text_field: ^1.0.1
 
 dev_dependencies:
   flutter_test:

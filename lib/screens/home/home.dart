@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lks/models/user.dart';
-import 'package:lks/screens/home/settings_form.dart';
+//import 'package:lks/screens/home/settings_form.dart';
 import 'package:lks/services/auth.dart';
 import 'package:lks/services/database.dart';
 import 'package:lks/services/http.dart';
@@ -9,6 +9,9 @@ import 'package:provider/provider.dart';
 import 'package:rich_alert/rich_alert.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:firebase_admob/firebase_admob.dart';
+import 'package:lks/services/admob_service.dart';
+import 'package:lks/screens/authenticate/add_id.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -16,11 +19,30 @@ class Home extends StatefulWidget {
 
 }
 
+Future<void> _initAdMob() {
+  return FirebaseAdMob.instance.initialize(appId: AdManager.appId);
+}
+
 class _HomeAppState extends State<Home> {
 
   final RoundedLoadingButtonController _btnController = new RoundedLoadingButtonController();
   final AuthService _auth = AuthService();
   final Http _http = Http();
+  BannerAd _bannerAd;
+
+  @override
+  void initState() {
+    super.initState();
+    _initAdMob();
+    _bannerAd = BannerAd(
+      adUnitId: AdManager.bannerAdUnitId,
+      size: AdSize.banner,
+    );
+    // TODO: Load a Banner Ad
+    _bannerAd
+      ..load()
+      ..show(anchorType: AnchorType.bottom);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +52,7 @@ class _HomeAppState extends State<Home> {
     /*void _showSettingsPanel() {
       showModalBottomSheet(context: context, builder: (context) {
         return Container(
-          padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 60.0),
+          padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 50.0),
           child: SettingsForm(),
         );
       });
@@ -41,7 +63,7 @@ class _HomeAppState extends State<Home> {
       builder: (context, snapshot) {
         if(snapshot.hasData){
           UserData userData = snapshot.data;
-          return Scaffold(
+          return Scaffold(resizeToAvoidBottomInset: false,
             appBar: AppBar(
               title: Text('ClockInn'),
               backgroundColor: Colors.lightBlue,
@@ -59,7 +81,8 @@ class _HomeAppState extends State<Home> {
                           backgroundColor: Colors.red,
                           textColor: Colors.white,
                           fontSize: 16.0
-                      ),//_showSettingsPanel(),
+                      ),
+                     // _showSettingsPanel(),
                 ),
                 FlatButton.icon(
                   icon: Icon(Icons.exit_to_app),
@@ -80,7 +103,7 @@ class _HomeAppState extends State<Home> {
                       child: ListTile(
                           leading: CircleAvatar(
                             radius: 25.0,
-                            backgroundImage: NetworkImage('http://ict.lks.ac.th/picpost/student/${userData.id}.jpg'),
+                            backgroundImage: NetworkImage('http://ict.lks.ac.th/picpost/student/${userData.id}.jpg') ?? NetworkImage('http://ict.lks.ac.th/picpost/student/nopic.gif'),
                           ),
                           title: Text("เลขประจำตัว : ${userData.id}")
                       ),
@@ -172,7 +195,12 @@ class _HomeAppState extends State<Home> {
             ),
           );
         }else{
-          return Loading();
+          UserData userData = snapshot.data;
+          if(userData == null){
+            return AddId();
+          }else{
+            return Loading();
+          }
         }
       }
     );

@@ -27,48 +27,48 @@ class _SettingsFormState extends State<SettingsForm> {
         if(snapshot.hasData){
           UserData userData = snapshot.data;
           return Form(
-            key: _formKey,
-            child: Column(
-              children: <Widget>[
-                Text(
-                  'Update your account',
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16.0),
-                  child: TextFormField(
-                    keyboardType: TextInputType.text,
-                    autofocus: false,
-                    initialValue: userData.id,
-                    decoration: InputDecoration(
-                        hintText: 'Student ID',
-                        contentPadding: EdgeInsets.fromLTRB(15.0, 15.0, 15.0, 15.0),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))
+              key: _formKey,
+              child: Column(
+                children: <Widget>[
+                  Text(
+                    'Update your account',
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16.0),
+                    child: TextFormField(
+                      keyboardType: TextInputType.number,
+                      autofocus: true,
+                      initialValue: userData.id,
+                      decoration: InputDecoration(
+                          hintText: 'Student ID',
+                          contentPadding: EdgeInsets.fromLTRB(15.0, 15.0, 15.0, 15.0),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(32.0))
+                      ),
+                      validator: (val) => val.isEmpty ? 'Enter an Student ID': null,
+                      onChanged: (val){
+                        setState(() => strStdID = val);
+                      },
                     ),
-                    validator: (val) => val.isEmpty ? 'Enter an Student ID': null,
-                    onChanged: (val){
-                      setState(() => strStdID = val);
+                  ),
+                  RaisedButton(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24)
+                    ),
+                    onPressed: () async {
+                      if(_formKey.currentState.validate()){
+                        await DatabaseService(uid: user.uid).updateUserData(
+                            strStdID ?? userData.id
+                        );
+                        Navigator.pop(context);
+                      }
                     },
+                    padding: EdgeInsets.all(12),
+                    color: Colors.lightBlue,
+                    child: Text('Update', style: TextStyle(color: Colors.white)),
                   ),
-                ),
-                RaisedButton(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24)
-                  ),
-                  onPressed: () async {
-                    if(_formKey.currentState.validate()){
-                      await DatabaseService(uid: user.uid).updateUserData(
-                          strStdID ?? userData.id
-                      );
-                      Navigator.pop(context);
-                    }
-                  },
-                  padding: EdgeInsets.all(12),
-                  color: Colors.lightBlue,
-                  child: Text('Update', style: TextStyle(color: Colors.white)),
-                ),
-              ],
-            ),
-          );
+                ],
+              ),
+            );
         }else{
           return Loading();
         }
