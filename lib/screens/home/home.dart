@@ -168,7 +168,7 @@ class _HomeAppState extends State<Home> {
                                   builder: (BuildContext context) {
                                     return RichAlertDialog( //uses the custom alert dialog
                                       alertTitle: richTitle(result['headerText']),
-                                      alertSubtitle: richSubtitle(result['outputText'] + " สำหรับนักเรียนรหัส ${userData.id}"),
+                                      alertSubtitle: richSubtitle(result['outputText']),
                                       alertType: RichAlertType.ERROR,
                                       actions: <Widget>[
                                         FlatButton(

@@ -57,7 +57,8 @@ class _SettingsFormState extends State<SettingsForm> {
                     onPressed: () async {
                       if(_formKey.currentState.validate()){
                         await DatabaseService(uid: user.uid).updateUserData(
-                            strStdID ?? userData.id
+                            strStdID ?? userData.id,
+                            true
                         );
                         Navigator.pop(context);
                       }

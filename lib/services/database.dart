@@ -11,9 +11,10 @@ class DatabaseService {
   // collection reference
   final CollectionReference brewCollection = Firestore.instance.collection('users');
 
-  Future<void> updateUserData(String id) async {
+  Future<void> updateUserData(String id, bool agree) async {
     return await brewCollection.document(uid).setData({
       'id': id,
+      'agree': agree
     });
   }
 

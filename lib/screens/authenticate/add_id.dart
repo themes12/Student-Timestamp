@@ -1,11 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:lks/models/user.dart';
 import 'package:lks/services/auth.dart';
 import 'package:lks/services/database.dart';
 import 'package:lks/shared/loading.dart';
 import 'package:provider/provider.dart';
-import 'package:otp_text_field/otp_field.dart';
-import 'package:otp_text_field/style.dart';
+import 'package:pinput/pin_put/pin_put.dart';
+import 'package:pinput/pin_put/pin_put_state.dart';
 
 class AddId extends StatefulWidget {
   @override
@@ -15,14 +17,23 @@ class AddId extends StatefulWidget {
 class _AddId extends State<AddId> {
 
   final AuthService _auth = AuthService();
-  final _formKey = GlobalKey<FormState>();
+  final _formKey = new GlobalKey<FormState>();
   bool loading = false;
+
+  BoxDecoration get _pinPutDecoration {
+    return BoxDecoration(
+      border: Border.all(color: const Color.fromRGBO(236, 235, 238, 1)),
+      borderRadius: BorderRadius.circular(10.0),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
 
     final user = Provider.of<User>(context);
     String strStdID = '';
+    final FocusNode _pinPutFocusNode = FocusNode();
+    final TextEditingController _pinPutController = TextEditingController();
 
     Future<void> _showMyDialog(String pin) async {
       return showDialog<void>(
@@ -48,7 +59,8 @@ class _AddId extends State<AddId> {
                   setState(() => strStdID = pin);
                   if(_formKey.currentState.validate()){
                     await DatabaseService(uid: user.uid).updateUserData(
-                        strStdID
+                        strStdID,
+                        true
                     );
                     Navigator.of(context).pop();
                   }
@@ -74,21 +86,51 @@ class _AddId extends State<AddId> {
     );
 
     final IdField = Center(
-      child: OTPTextField(
-        key: _formKey,
-        length: 5,
-        width: MediaQuery.of(context).size.width,
-        fieldWidth: 80,
-        style: TextStyle(
-            fontSize: 17
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.65,
+        margin: const EdgeInsets.all(20.0),
+        padding: EdgeInsets.symmetric(vertical: 10.0),
+        child: PinPut(
+          eachFieldHeight: 50,
+          fieldsCount: 5,
+          onSubmit: (pin) => _showMyDialog(pin),
+          focusNode: _pinPutFocusNode,
+          controller: _pinPutController,
+          submittedFieldDecoration: _pinPutDecoration.copyWith(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          selectedFieldDecoration: _pinPutDecoration,
+          followingFieldDecoration: _pinPutDecoration.copyWith(
+            color: const Color.fromRGBO(236, 235, 238, 1),
+            borderRadius: BorderRadius.circular(5.0),
+            border: Border.all(
+              color: const Color.fromRGBO(236, 235, 238, 1),
+            ),
+          ),
         ),
-        textFieldAlignment: MainAxisAlignment.spaceAround,
-        fieldStyle: FieldStyle.underline,
-        onCompleted: (pin) {
-          _showMyDialog(pin);
-        },
       ),
     );
+      /*child: PinCodeTextField(
+        appContext: context,
+        length: 5,
+        obscureText: false,
+        key: _formKey,
+        animationType: AnimationType.fade,
+        pinTheme: PinTheme(
+          shape: PinCodeFieldShape.box,
+          borderRadius: BorderRadius.circular(5),
+          fieldHeight: 50,
+          fieldWidth: 40,
+          activeFillColor: Colors.white,
+        ),
+        animationDuration: Duration(milliseconds: 300),
+        backgroundColor: Colors.blue.shade50,
+        enableActiveFill: true,
+        errorAnimationController: errorController,
+        onChanged: (value) {
+          setState(() => strStdID = value);
+        },
+      ),*/
 
     return loading ? Loading() : Scaffold(
       appBar: AppBar(
