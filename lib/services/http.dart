@@ -10,7 +10,7 @@ class Http {
     String version = packageInfo.version;
 
     try{
-      final url = 'https://std.cleverapps.io/api';
+      final url = 'https://lksapi.herokuapp.com';
       var response = await http.post(url, body: {'uid': uid, 'std_id': id, 'version': version});
       if(response.statusCode == 200){
         Map _data = await jsonDecode(response.body);
